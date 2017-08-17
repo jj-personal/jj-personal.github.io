@@ -1,0 +1,52 @@
+---
+title: "R Markdown and Leaflet"
+author: "Jianjun Ge"
+date: "August 17, 2017"
+output: html_document
+---
+
+## Summary
+This is an R Markdown document for peer-graded assignment: R markdown and leaflet. The objective of this assignment is to create a web page using R Markdown that features a map created with Leaflet. 
+
+In this project, USGS earthquake data are used https://earthquake.usgs.gov/earthquakes/feed/v1.0/csv.php. This dataset records all earthquakes around the world. This project focuses on quakes occurred in conterminous USA over the past month. 
+
+# Load libraries and data
+
+```{r}
+library(leaflet)
+library(shiny)
+library(htmltools)
+
+quake <- read.csv("2.5_month_us.csv")
+```
+
+# R shiny and leaflet code
+
+```{r}
+ui <- fluidPage(
+  titlePanel("U.S. Earthquakes in Past Month, 8/17/2017"),
+  titlePanel("Click for More Details"),
+  leafletOutput("mymap")
+
+)
+
+server <- function(input, output, session) {
+  
+  output$mymap <- renderLeaflet({
+    leaflet(quake) %>% 
+    addTiles() %>%
+    addCircleMarkers(~longitude,~latitude, 
+                       radius = ~ 7,
+                       color = ~ color,
+                       fill = FALSE, weight = 4,
+                       popup = ~htmlEscape(place)) %>% 
+    addLegend(labels = c("> 5", "4 - 5", "3 - 4", "2 - 3"), 
+                colors = c("red", "darkorchid", "darkorange", "dodgerblue" ), 
+                title = "Magnitude")
+  })
+}
+
+shinyApp(ui, server)
+
+```
+
